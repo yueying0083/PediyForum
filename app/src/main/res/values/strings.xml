@@ -8,4 +8,19 @@
 
     <string name="click_login">未登录</string>
     <string name="vip_1">初级会员</string>
+    <string name="title_activity_login">登录</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">用户名或E-mail</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="now_sing_in">正在登录</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="error_incorrect_password">密码错误</string>
+    <string name="username_cannot_be_null">用户名不能为空</string>
+    <string name="password_cannot_be_null">密码不能为空</string>
+    <string name="network_down">网络请求失败</string>
+    <string name="notice">提示</string>
+    <string name="confirm">确认</string>
+    <string name="login_error">登录出现错误</string>
 </resources>
