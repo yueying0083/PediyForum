@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">PediyForum</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="click_login">未登录</string>
+    <string name="vip_1">初级会员</string>
+</resources>
