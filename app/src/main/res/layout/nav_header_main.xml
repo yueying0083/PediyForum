@@ -31,7 +31,6 @@
         android:id="@+id/tv_rank"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="8dip"
-        android:text="@string/vip_1" />
+        android:paddingTop="8dip" />
 
 </LinearLayout>

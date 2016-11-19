@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -30,6 +31,9 @@ public class MainActivity extends BaseActivity {
     DrawerLayout mDrawerLayout;
     @BindView(R.id.nav_view)
     NavigationView mNavigationView;
+
+    private TextView mUsernameTextView;
+    private TextView mRankTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,11 @@ public class MainActivity extends BaseActivity {
 
     private void initNav() {
         mNavigationView.setNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        mNavigationView.getHeaderView(0).setOnClickListener(new View.OnClickListener() {
+        View headView = mNavigationView.getHeaderView(0);
+        mUsernameTextView = (TextView) headView.findViewById(R.id.tv_username);
+        mRankTextView = (TextView) headView.findViewById(R.id.tv_rank);
+
+        headView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO 如果没有登录
@@ -65,10 +73,12 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe
     public void onEvent(UserModel userModel) {
-        if (userModel == null) {
-            // TODO 更新当前Drawer上信息
+        if (userModel != null) {
+            mUsernameTextView.setText(userModel.getUsername());
+            mRankTextView.setText(userModel.getRank());
         } else {
-            // TODO
+            mUsernameTextView.setText(R.string.now_sing_in);
+            mRankTextView.setText("");
         }
     }
 

@@ -8,4 +8,5 @@
     <li><a href="https://github.com/JakeWharton/butterknife">butterknife</a></li>
     <li><a href="https://github.com/afollestad/material-dialogs">material-dialogs</a></li>
     <li><a href="https://github.com/greenrobot/EventBus">EventBus</a></li>
+    <li><a href="https://github.com/jhy/jsoup">jsoup</a></li>
 </ul>

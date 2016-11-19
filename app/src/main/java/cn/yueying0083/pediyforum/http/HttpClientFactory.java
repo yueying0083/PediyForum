@@ -7,7 +7,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.PersistentCookieStore;
 
 import cn.yueying0083.pediyforum.utils.Constant;
-import cz.msebera.android.httpclient.client.protocol.ClientContext;
+import cz.msebera.android.httpclient.client.protocol.HttpClientContext;
 import cz.msebera.android.httpclient.protocol.HttpContext;
 
 /**
@@ -24,7 +24,7 @@ public class HttpClientFactory {
     public synchronized static AsyncHttpClient getClient(@NonNull Context context, boolean clearCookieStore) {
         if (mCurrentHttpClient == null) {
             mCurrentHttpClient = new AsyncHttpClient(true, 80, 443);
-            if (Constant.App.DEBUG) mCurrentHttpClient.setProxy("192.168.100.159", 8888);
+            if (Constant.App.DEBUG) mCurrentHttpClient.setProxy("192.168.1.104", 8888);
             PersistentCookieStore cookieStore = new PersistentCookieStore(context);
             mCurrentHttpClient.setCookieStore(cookieStore);
         }
@@ -36,10 +36,10 @@ public class HttpClientFactory {
         return mCurrentHttpClient;
     }
 
-    private static void clearCookies(@NonNull AsyncHttpClient client) {
+    public static void clearCookies(@NonNull AsyncHttpClient client) {
         HttpContext hc = client.getHttpContext();
         if (hc != null) {
-            Object obj = hc.getAttribute(ClientContext.COOKIE_STORE);
+            Object obj = hc.getAttribute(HttpClientContext.COOKIE_STORE);
             if (obj != null && obj instanceof PersistentCookieStore) {
                 PersistentCookieStore pcs = (PersistentCookieStore) obj;
                 pcs.clear();

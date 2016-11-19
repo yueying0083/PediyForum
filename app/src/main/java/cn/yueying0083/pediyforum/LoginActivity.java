@@ -12,18 +12,30 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
 
+import org.greenrobot.eventbus.EventBus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.yueying0083.pediyforum.http.HttpClientFactory;
+import cn.yueying0083.pediyforum.model.UserModel;
 import cn.yueying0083.pediyforum.model.response.LoginResponse;
+import cn.yueying0083.pediyforum.utils.Constant;
 import cn.yueying0083.pediyforum.utils.DialogUtils;
 import cn.yueying0083.pediyforum.utils.EncryptUtils;
+import cn.yueying0083.pediyforum.utils.NumberUtils;
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.client.protocol.HttpClientContext;
+import cz.msebera.android.httpclient.cookie.Cookie;
 
 public class LoginActivity extends BaseActivity {
 
@@ -35,6 +47,8 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.password)
     EditText mPasswordTextView;
 
+    private boolean mLoginStarted = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +59,9 @@ public class LoginActivity extends BaseActivity {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    if (!mLoginStarted) {
+                        attemptLogin();
+                    }
                     return true;
                 }
                 return false;
@@ -56,6 +72,7 @@ public class LoginActivity extends BaseActivity {
 
     @OnClick(R.id.email_sign_in_button)
     void attemptLogin() {
+        mLoginStarted = true;
         mUsernameTextView.setError(null);
         mPasswordTextView.setError(null);
 
@@ -65,12 +82,14 @@ public class LoginActivity extends BaseActivity {
         if (TextUtils.isEmpty(username)) {
             mUsernameTextView.setError(getString(R.string.username_cannot_be_null));
             mUsernameTextView.requestFocus();
+            mLoginStarted = false;
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
             mPasswordTextView.setError(getString(R.string.password_cannot_be_null));
             mPasswordTextView.requestFocus();
+            mLoginStarted = false;
             return;
         }
 
@@ -78,11 +97,13 @@ public class LoginActivity extends BaseActivity {
         showProgress(true);
 
         AsyncHttpClient client = HttpClientFactory.getClient(getSelfContext());
+        // start login, clear cookie
+        HttpClientFactory.clearCookies(client);
         RequestParams params = new RequestParams();
         params.put("account", username);
         params.put("password", passwordMD5.toLowerCase());
         client.addHeader("Host", "passport.kanxue.com");
-        client.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:48.0) Gecko/20100101 Firefox/48.0");
+        client.addHeader("User-Agent", Constant.App.UA);
         client.addHeader("X-Requested-With", "XMLHttpRequest");
         client.post("http://passport.kanxue.com/user-login.htm", params, new AsyncHttpResponseHandler() {
 
@@ -97,9 +118,7 @@ public class LoginActivity extends BaseActivity {
                 try {
                     response = new Gson().fromJson(rtn, LoginResponse.class);
                 } catch (Exception e) {
-                    showProgress(false);
-                    DialogUtils.showMessageDialog(getSelfContext(), R.string.notice, R.string.login_error, R.string.confirm);
-                    // TODO statistic, upload to umeng
+                    doLoginFailed(0x01);
                     return;
                 }
 
@@ -116,7 +135,7 @@ public class LoginActivity extends BaseActivity {
                     return;
                 }
 
-                getUserInfo(response);
+                doLogin(response);
             }
 
             @Override
@@ -128,12 +147,93 @@ public class LoginActivity extends BaseActivity {
     }
 
     /**
+     * jump from kanxue.com, continue to login pediy.com
+     * <p>
      * 获取用户信息
      *
      * @param response
      */
-    private void getUserInfo(LoginResponse response) {
-        // TODO login succ, try get user info
+    private void doLogin(LoginResponse response) {
+        final AsyncHttpClient client = HttpClientFactory.getClient(getSelfContext());
+
+        client.addHeader("Host", "bbs.pediy.com");
+        client.addHeader("Referer", "http://passport.kanxue.com/user-login.htm");
+        String url = String.format("http://bbs.pediy.com/ucenter/user.php?action=synlogin&token=%s&time=", response.getMessage(), NumberUtils.timeSec());
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Object obj = client.getHttpContext().getAttribute(HttpClientContext.COOKIE_STORE);
+                if (obj != null && obj instanceof PersistentCookieStore) {
+                    PersistentCookieStore pcs = (PersistentCookieStore) obj;
+
+                    List<Cookie> list = pcs.getCookies();
+                    if (list != null && !list.isEmpty()) {
+                        for (Cookie c : list) {
+                            if (c != null && TextUtils.equals(c.getDomain(), "bbs.pediy.com") && TextUtils.equals(c.getName(), "bbuserid")) {
+                                // login succ
+                                doGetUserInfo(client, c.getValue());
+                                return;
+                            }
+                        }
+                    }
+
+                }
+
+                doLoginFailed(0x02);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                doLoginFailed(0x03);
+            }
+        });
+    }
+
+    private void doGetUserInfo(AsyncHttpClient client, final String userId) {
+        String url = String.format("http://bbs.pediy.com/member.php?u=%s", userId);
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                UserModel userModel = null;
+                try {
+                    Document doc = Jsoup.parse(new String(responseBody));
+                    String html = doc.getElementById("username_box").getElementsByTag("h1").html();
+
+                    String username = html.substring(0, html.indexOf("<img") - 1);
+                    username = username.trim();
+
+                    userModel = new UserModel();
+                    userModel.setId(userId);
+                    userModel.setPasswordMD5(EncryptUtils.md5(mPasswordTextView.getText().toString()).toLowerCase());
+                    userModel.setUsername(username);
+                    userModel.setRank(doc.getElementById("username_box").getElementsByTag("h2").html());
+
+                    EventBus.getDefault().post(userModel);
+                    showProgress(false);
+                    finish();
+                } catch (Exception e) {
+                    // TODO upload error
+                    showProgress(false);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                doLoginFailed(0x04);
+            }
+        });
+
+
+    }
+
+    private void doLoginSucc(String html) {
+
+    }
+
+    private void doLoginFailed(int type) {
+        showProgress(false);
+        DialogUtils.showMessageDialog(getSelfContext(), R.string.notice, R.string.login_error, R.string.confirm);
+        // TODO statistic, upload to umeng
     }
 
     private void showProgress(final boolean show) {
@@ -144,6 +244,7 @@ public class LoginActivity extends BaseActivity {
         if (show) {
             mLoginDialog.show();
         } else {
+            mLoginStarted = false;
             mLoginDialog.dismiss();
         }
     }
