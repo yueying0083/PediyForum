@@ -24,7 +24,7 @@ public class HttpClientFactory {
     public synchronized static AsyncHttpClient getClient(@NonNull Context context, boolean clearCookieStore) {
         if (mCurrentHttpClient == null) {
             mCurrentHttpClient = new AsyncHttpClient(true, 80, 443);
-            if (Constant.App.DEBUG) mCurrentHttpClient.setProxy("192.168.1.104", 8888);
+            if (Constant.App.DEBUG) mCurrentHttpClient.setProxy("192.168.100.159", 8888);
             PersistentCookieStore cookieStore = new PersistentCookieStore(context);
             mCurrentHttpClient.setCookieStore(cookieStore);
         }
