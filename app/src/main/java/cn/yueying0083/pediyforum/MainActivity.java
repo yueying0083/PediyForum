@@ -21,6 +21,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.yueying0083.pediyforum.manager.UserManager;
 import cn.yueying0083.pediyforum.model.UserModel;
 
 public class MainActivity extends BaseActivity {
@@ -31,9 +32,13 @@ public class MainActivity extends BaseActivity {
     DrawerLayout mDrawerLayout;
     @BindView(R.id.nav_view)
     NavigationView mNavigationView;
+    @BindView(R.id.cl_root)
+    View mContentView;
 
     private TextView mUsernameTextView;
     private TextView mRankTextView;
+
+    private UserManager mUserManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,7 @@ public class MainActivity extends BaseActivity {
 
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
+        mUserManager = UserManager.getInstance();
 
         initDrawer();
         initNav();
@@ -61,12 +67,17 @@ public class MainActivity extends BaseActivity {
         mUsernameTextView = (TextView) headView.findViewById(R.id.tv_username);
         mRankTextView = (TextView) headView.findViewById(R.id.tv_rank);
 
+        onEvent(mUserManager.getCurrentUser(getSelfContext()));
+
         headView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO 如果没有登录
-                Intent intent = new Intent(getSelfContext(), LoginActivity.class);
-                startActivity(intent);
+                if (mUserManager.isUserLogin(getSelfContext())) {
+                    startActivity(new Intent(getSelfContext(), UserCenterActivity.class));
+                } else {
+                    Intent intent = new Intent(getSelfContext(), LoginActivity.class);
+                    startActivity(intent);
+                }
             }
         });
     }
@@ -77,7 +88,7 @@ public class MainActivity extends BaseActivity {
             mUsernameTextView.setText(userModel.getUsername());
             mRankTextView.setText(userModel.getRank());
         } else {
-            mUsernameTextView.setText(R.string.now_sing_in);
+            mUsernameTextView.setText(R.string.click_login);
             mRankTextView.setText("");
         }
     }

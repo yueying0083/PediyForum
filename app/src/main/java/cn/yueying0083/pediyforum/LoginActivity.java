@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
@@ -20,6 +21,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +29,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.yueying0083.pediyforum.http.HttpClientFactory;
+import cn.yueying0083.pediyforum.manager.UserManager;
 import cn.yueying0083.pediyforum.model.UserModel;
 import cn.yueying0083.pediyforum.model.response.LoginResponse;
 import cn.yueying0083.pediyforum.utils.Constant;
@@ -190,44 +193,41 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void doGetUserInfo(AsyncHttpClient client, final String userId) {
-        String url = String.format("http://bbs.pediy.com/member.php?u=%s", userId);
+        String url = String.format("http://bbs.pediy.com/member.php?u=%s&styleid=12", userId);
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                UserModel userModel = null;
-                try {
-                    Document doc = Jsoup.parse(new String(responseBody));
-                    String html = doc.getElementById("username_box").getElementsByTag("h1").html();
-
-                    String username = html.substring(0, html.indexOf("<img") - 1);
-                    username = username.trim();
-
-                    userModel = new UserModel();
-                    userModel.setId(userId);
-                    userModel.setPasswordMD5(EncryptUtils.md5(mPasswordTextView.getText().toString()).toLowerCase());
-                    userModel.setUsername(username);
-                    userModel.setRank(doc.getElementById("username_box").getElementsByTag("h2").html());
-
-                    EventBus.getDefault().post(userModel);
-                    showProgress(false);
-                    finish();
-                } catch (Exception e) {
-                    // TODO upload error
-                    showProgress(false);
+                if (statusCode == 200) {
+                    doLoginSucc(new String(responseBody));
+                } else {
+                    doLoginFailed(0x04);
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                doLoginFailed(0x04);
+                doLoginFailed(0x05);
             }
         });
-
 
     }
 
     private void doLoginSucc(String html) {
+        try {
+            Type t = new TypeToken<List<UserModel>>() {
+            }.getType();
 
+            List<UserModel> list = new Gson().fromJson(html, t);
+            if (list == null || list.isEmpty()) {
+                doLoginFailed(0x06);
+                return;
+            }
+            UserManager.getInstance().loginSucc(getSelfContext(), list.get(0));
+            showProgress(false);
+            finish();
+        } catch (Exception e) {
+            doLoginFailed(0x07);
+        }
     }
 
     private void doLoginFailed(int type) {
