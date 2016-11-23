@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="5dip"
+    android:paddingEnd="10dip"
+    android:paddingStart="8dip"
+    android:paddingTop="6dip">
+
+    <cn.yueying0083.pediyforum.views.CircleImageView
+        android:id="@+id/iv_user_head"
+        android:layout_width="34dip"
+        android:layout_height="34dip"
+        android:src="@android:drawable/sym_def_app_icon" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dip"
+            android:layout_marginTop="6dip"
+            android:paddingBottom="1dip"
+            android:textColor="@color/gray_8"
+            android:textSize="@dimen/dip_13" />
+
+        <TextView
+            android:id="@+id/tv_posts_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dip"
+            android:layout_marginTop="4dip"
+            android:maxLines="2"
+            android:paddingEnd="10dip"
+            android:paddingStart="6dip"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/dip_18" />
+
+        <LinearLayout
+            android:id="@+id/ll_posts_addon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dip"
+            android:layout_marginStart="8dip"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_global_sticky"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dip"
+                android:layout_marginStart="0dip"
+                android:background="@drawable/bg_sticky"
+                android:paddingBottom="2dip"
+                android:paddingEnd="6dip"
+                android:paddingStart="6dip"
+                android:paddingTop="2dip"
+                android:text="@string/global_sticky"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/dip_12"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_sticky"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dip"
+                android:layout_marginStart="0dip"
+                android:background="@drawable/bg_sticky"
+                android:paddingBottom="2dip"
+                android:paddingEnd="6dip"
+                android:paddingStart="6dip"
+                android:paddingTop="2dip"
+                android:text="@string/sticky"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/dip_12"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_goodness"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_goodness"
+                android:paddingBottom="2dip"
+                android:paddingEnd="6dip"
+                android:paddingStart="6dip"
+                android:paddingTop="2dip"
+                android:text="@string/goodness_1"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/dip_12"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_view_counts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dip"
+                android:layout_marginStart="0dip"
+                android:elevation="2dip"
+                android:text="@string/view_counts"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/dip_12" />
+
+            <TextView
+                android:id="@+id/tv_reply_counts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2dip"
+                android:text="@string/reply_counts"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/dip_12" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

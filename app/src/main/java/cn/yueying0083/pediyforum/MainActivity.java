@@ -3,17 +3,16 @@ package cn.yueying0083.pediyforum;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -21,8 +20,11 @@ import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.yueying0083.pediyforum.adapter.ForumPostsAdapter;
+import cn.yueying0083.pediyforum.manager.ForumPostsManager;
 import cn.yueying0083.pediyforum.manager.UserManager;
 import cn.yueying0083.pediyforum.model.UserModel;
+import cn.yueying0083.pediyforum.model.response.ForumPostsList;
 
 public class MainActivity extends BaseActivity {
 
@@ -34,11 +36,16 @@ public class MainActivity extends BaseActivity {
     NavigationView mNavigationView;
     @BindView(R.id.cl_root)
     View mContentView;
+    @BindView(R.id.lv_posts)
+    ListView mPostsListView;
 
     private TextView mUsernameTextView;
     private TextView mRankTextView;
 
     private UserManager mUserManager;
+    private ForumPostsManager mForumPostsManager;
+
+    private ForumPostsAdapter mForumPostsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +55,11 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
         mUserManager = UserManager.getInstance();
+        mForumPostsManager = ForumPostsManager.getInstance();
 
         initDrawer();
         initNav();
+        initData();
 
         EventBus.getDefault().register(this);
     }
@@ -82,6 +91,12 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    private void initData() {
+        mForumPostsAdapter = new ForumPostsAdapter(getSelfContext(), null);
+        mPostsListView.setAdapter(mForumPostsAdapter);
+        mForumPostsManager.getFirst(getSelfContext(), "161");
+    }
+
     @Subscribe
     public void onEvent(UserModel userModel) {
         if (userModel != null) {
@@ -93,6 +108,16 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Subscribe
+    public void onEvent(ForumPostsList list) {
+        if (list.getCode() == 1) {
+            mForumPostsAdapter.setSource(list.getPostsList());
+        } else {
+            Snackbar.make(mContentView, list.getMessage(), Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -101,28 +126,6 @@ public class MainActivity extends BaseActivity {
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -139,20 +142,9 @@ public class MainActivity extends BaseActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             // Handle navigation view item clicks here.
-            int id = item.getItemId();
-
-            if (id == R.id.nav_camera) {
-                // Handle the camera action
-            } else if (id == R.id.nav_gallery) {
-
-            } else if (id == R.id.nav_slideshow) {
-
-            } else if (id == R.id.nav_manage) {
-
-            } else if (id == R.id.nav_share) {
-
-            } else if (id == R.id.nav_send) {
-
+            switch (item.getItemId()) {
+                case R.id.nav_about:
+                    break;
             }
 
             if (mDrawerLayout != null) {

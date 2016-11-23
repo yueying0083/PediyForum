@@ -23,6 +23,9 @@
     <string name="notice">提示</string>
     <string name="confirm">确认</string>
     <string name="login_error">登录出现错误</string>
+
+    <string name="parse_error">数据解析出错</string>
+
     <string name="title_activity_user_center">UserCenterActivity</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
@@ -113,4 +116,10 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+
+    <string name="global_sticky">版块置顶</string>
+    <string name="sticky">置顶</string>
+    <string name="goodness_1">精品</string>
+    <string name="view_counts">查看:%d</string>
+    <string name="reply_counts">回复:%d</string>
 </resources>
