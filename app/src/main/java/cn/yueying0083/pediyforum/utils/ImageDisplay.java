@@ -4,10 +4,23 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
 public class ImageDisplay {
+
+    public static Bitmap loadImageSync(String url) {
+        if (url != null && url.startsWith("/")) {
+            url = "file://" + url;
+        }
+        DisplayImageOptions opt = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .build();
+        return ImageLoader.getInstance().loadImageSync(url, opt);
+    }
 
     public static void display(ImageView iv, String url, boolean anim) {
         if (iv == null || TextUtils.isEmpty(url))
@@ -16,9 +29,9 @@ public class ImageDisplay {
             url = "file://" + url;
         }
         ImageDisplayConfig config = ImageDisplayConfig.getInstance(iv.getContext());
-        if(anim) {
+        if (anim) {
             ImageLoader.getInstance().displayImage(url, iv, config.getDisplayOptions(), config.getDisplayListener());
-        }else{
+        } else {
             ImageLoader.getInstance().displayImage(url, iv, config.getDisplayOptions());
         }
     }

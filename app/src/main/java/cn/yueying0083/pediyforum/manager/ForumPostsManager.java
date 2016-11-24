@@ -16,6 +16,8 @@ import cn.yueying0083.pediyforum.utils.SPHelper;
 import cz.msebera.android.httpclient.Header;
 
 /**
+ * 获取版块列表
+ * <p>
  * Created by luoj@huoli.com on 2016/11/23.
  */
 

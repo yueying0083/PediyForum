@@ -122,4 +122,6 @@
     <string name="goodness_1">精品</string>
     <string name="view_counts">查看:%d</string>
     <string name="reply_counts">回复:%d</string>
+    <string name="author_only">只看楼主</string>
+    <string name="posts_detail">帖子详情</string>
 </resources>

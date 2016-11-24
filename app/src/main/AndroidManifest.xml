@@ -27,7 +27,11 @@
         <activity
             android:name=".UserCenterActivity"
             android:label="@string/title_activity_user_center"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".PostsActivity"
+            android:label="@string/posts_detail" />
     </application>
 
 </manifest>

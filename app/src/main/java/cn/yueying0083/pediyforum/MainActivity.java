@@ -12,6 +12,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -95,6 +97,7 @@ public class MainActivity extends BaseActivity {
         mForumPostsAdapter = new ForumPostsAdapter(getSelfContext(), null);
         mPostsListView.setAdapter(mForumPostsAdapter);
         mForumPostsManager.getFirst(getSelfContext(), "161");
+        mPostsListView.setOnItemClickListener(mOnItemClickListener);
     }
 
     @Subscribe
@@ -133,6 +136,15 @@ public class MainActivity extends BaseActivity {
         public void onClick(View v) {
 
 
+        }
+    };
+
+    private AbsListView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Intent intent = new Intent(getSelfContext(), PostsActivity.class);
+            intent.putExtra(PostsActivity.INTENT_SER_POSTS, mForumPostsAdapter.getItem(position));
+            startActivity(intent);
         }
     };
 
