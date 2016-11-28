@@ -1,7 +1,5 @@
 package cn.yueying0083.pediyforum.http;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,8 +10,6 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
-import java.io.InputStream;
 
 import cn.yueying0083.pediyforum.utils.ImageDisplayConfig;
 
